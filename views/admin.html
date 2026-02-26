@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin PIWZ MARKET</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>Admin PIWZ MARKET</h1>
+
+<form id="form">
+  <input name="name" placeholder="Nama Produk" required>
+  <input name="price" placeholder="Harga" required>
+  <input name="discount" placeholder="Diskon %" required>
+  <input type="file" name="image" required>
+  <img id="preview">
+  <button>Tambah Produk</button>
+</form>
+
+<hr>
+<h2>Daftar Produk</h2>
+<div class="grid" id="list"></div>
+
+<script>
+const form = document.getElementById("form");
+const preview = document.getElementById("preview");
+
+form.image.onchange = e => {
+  preview.src = URL.createObjectURL(e.target.files[0]);
+};
+
+form.onsubmit = async e => {
+  e.preventDefault();
+  const data = new FormData(form);
+
+  await fetch("/api/products", {
+    method: "POST",
+    body: data
+  });
+
+  location.reload();
+};
+
+function formatRp(n){
+  return "Rp " + Number(n).toLocaleString("id-ID");
+}
+
+fetch("/api/products")
+.then(res => res.json())
+.then(products => {
+  const list = document.getElementById("list");
+
+  products.forEach(p => {
+    list.innerHTML += `
+      <div class="card">
+        <img src="/uploads/${p.image}">
+        <b>${p.name}</b>
+        <p>${formatRp(p.price)} | Diskon ${p.discount}%</p>
+
+        <button onclick="hapus(${p.id})">Hapus</button>
+        <button onclick="edit(${p.id}, '${p.name}', ${p.price}, ${p.discount})">Edit</button>
+      </div>
+    `;
+  });
+});
+
+async function hapus(id){
+  await fetch("/api/products/" + id, { method: "DELETE" });
+  location.reload();
+}
+
+async function edit(id, name, price, discount){
+  const newName = prompt("Nama", name);
+  const newPrice = prompt("Harga", price);
+  const newDiscount = prompt("Diskon", discount);
+
+  await fetch("/api/products/" + id, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: newName,
+      price: newPrice,
+      discount: newDiscount
+    })
+  });
+
+  location.reload();
+}
+</script>
+
+</body>
+  </html>
