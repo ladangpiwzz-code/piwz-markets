@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PIWZ MARKET</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1 class="logo">PIWZ MARKET</h1>
+<div class="grid" id="products"></div>
+
+<script>
+function formatRp(n){
+  return "Rp " + Number(n).toLocaleString("id-ID");
+}
+
+fetch("/api/products")
+.then(res => res.json())
+.then(data => {
+  const container = document.getElementById("products");
+
+  data.forEach(p => {
+    const finalPrice = Math.round(p.price - (p.price * p.discount / 100));
+
+    container.innerHTML += `
+      <div class="card fade">
+        <img src="/uploads/${p.image}">
+        <h3>${p.name}</h3>
+
+        ${p.discount > 0 ? `
+          <div class="price">
+            <span class="old">${formatRp(p.price)}</span>
+            <span class="new">${formatRp(finalPrice)}</span>
+          </div>
+          <div class="badge">-${p.discount}%</div>
+        ` : `<div class="new">${formatRp(p.price)}</div>`}
+
+        <a class="wa"
+        target="_blank"
+        href="https://wa.me/6283878235306?text=Bang saya mau order ${p.name} dengan harga ${formatRp(finalPrice)}">
+        Order via WhatsApp
+        </a>
+      </div>
+    `;
+  });
+});
+</script>
+
+</body>
+  </html>
