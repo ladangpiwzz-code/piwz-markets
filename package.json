@@ -1,7 +1,6 @@
 {
   "name": "piwz-market",
   "version": "1.0.0",
-  "description": "PIWZ MARKET Railway",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
